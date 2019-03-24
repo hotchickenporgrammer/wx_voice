@@ -7,12 +7,10 @@
       <text class="userinfo-nickname">{{userInfo.nickName}}</text>
     </block>
   </view>
-  <view class="usermotto">
-    <text class="user-motto">{{motto}}</text>
-  </view>
-  
-<button bindtap='start'>开始录音</button>  
-<button bindtap='play'>播放录音</button>  
-<button bindtap='stop'>停止录音</button>
-<view>大家好晚上好</view>
+  <button bindtap="start" class='btn'>开始录音</button>
+<button bindtap="pause" class='btn'>暂停录音</button>
+<button bindtap="resume" class='btn'>继续录音</button>
+<button bindtap="stop" class='btn'>停止录音</button>
+ 
+<button bindtap="play" class='btn'>播放录音</button>
 </view>

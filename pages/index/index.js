@@ -1,8 +1,8 @@
 //index.js
 //获取应用实例
 const app = getApp()
-
-var voice = "";
+const recorderManager = wx.getRecorderManager()
+const innerAudioContext = wx.createInnerAudioContext('myaudio')
 
 Page({
   data: {
@@ -12,11 +12,6 @@ Page({
     canIUse: wx.canIUse('button.open-type.getUserInfo')
   },
   //事件处理函数
-  bindViewTap: function() {
-    wx.navigateTo({
-      url: '../logs/logs'
-    })
-  },
   onLoad: function () {
     if (app.globalData.userInfo) {
       this.setData({
@@ -54,24 +49,71 @@ Page({
     })
   },
 
+  //播放声音
   play: function () {
-    //播放声音文件  
-    wx.playVoice({
-      filePath: voice
+    innerAudioContext.autoplay = true
+    innerAudioContext.src = this.data.tempFilePath;
+      innerAudioContext.onPlay(() => {
+        console.log('开始播放')
+      })
+    innerAudioContext.onError((res) => {
+      console.log(res.errMsg)
+      console.log(res.errCode)
     })
   },
-  start: function () {
-    //开始录音  
-    wx.startRecord({
-      success: function (e) {
-        voice = e.tempFilePath
-      }
-    })
-  },
+
+  //停止录音
   stop: function () {
-    //结束录音  
-    wx.stopRecord();
-  }
+    recorderManager.stop();
+    recorderManager.onStop((res) => {
+      // this.tempFilePath = res.tempFilePath;
+      this.setData({
+        tempFilePath: res.tempFilePath
+      })
+      console.log('停止录音', res.tempFilePath)
+      // const { tempFilePath } = res
+    })
+  },
 
+  resume: function () {
+    recorderManager.resume();
+    recorderManager.onStart(() => {
+      console.log('重新开始录音')
+    });
+    //错误回调
+    recorderManager.onError((res) => {
+      console.log(res);
+    })
+  },
 
+  pause: function () {
+    recorderManager.pause();
+    recorderManager.onPause((res) => {
+
+      console.log('暂停录音')
+
+    })
+  },
+
+  //开始录音的时候
+  start: function () {
+
+    const options = {
+      duration: 10000,//指定录音的时长，单位 ms
+      sampleRate: 16000,//采样率
+      numberOfChannels: 1,//录音通道数
+      encodeBitRate: 96000,//编码码率
+      format: 'mp3',//音频格式，有效值 aac/mp3
+      frameSize: 50,//指定帧大小，单位 KB
+    }
+    //开始录音
+    recorderManager.start(options);
+    recorderManager.onStart(() => {
+      console.log('recorder start')
+    });
+    //错误回调
+    recorderManager.onError((res) => {
+      console.log(res);
+    })
+  },
 })
